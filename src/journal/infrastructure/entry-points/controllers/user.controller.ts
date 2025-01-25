@@ -14,14 +14,9 @@ import { IUser } from 'src/journal/domain/model';
 import { CreateUserDto, GetUserDto } from '../dto/user.dto';
 import { AuthGuard } from '../auth/auth-guard';
 
-@Controller('api/journal')
+@Controller('api/user')
 export class UserController {
   constructor(private readonly appService: UserService) {}
-
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
-  }
 
   @UseGuards(AuthGuard)
   @Get('user')

@@ -37,11 +37,4 @@ export class AuthService {
       throw error;
     }
   }
-
-  hashPwd(password: string): string {
-    const hash = createHash('sha224');
-    hash.update(password);
-    const pwdHash = hash.digest('hex');
-    return pwdHash;
-  }
 }

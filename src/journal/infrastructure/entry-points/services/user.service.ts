@@ -1,10 +1,9 @@
 import {
   BadRequestException,
   Injectable,
-  Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { IUser } from 'src/journal/domain/model';
+import { IPasswordHash, IUser } from '../../../../journal/domain/model';
 import {
   CreateUserUseCase,
   GetUserByEmailUseCase,
@@ -12,14 +11,18 @@ import {
 } from 'src/journal/domain/use-cases';
 import { CreateUserDto, GetUserDto } from '../dto/user.dto';
 import { createHash } from 'crypto';
+import { PassportHasher } from '../auth';
 
 @Injectable()
 export class UserService {
+  private passwordHash: IPasswordHash;
   constructor(
     private getUserByEmailUseCase: GetUserByEmailUseCase,
     private createUserUseCase: CreateUserUseCase,
     private getUserByIdUseCase: GetUserByIdUseCase,
-  ) {}
+  ) {
+    this.passwordHash = new PassportHasher();
+  }
 
   async getuserDetail(queryDto: GetUserDto): Promise<IUser> {
     try {
@@ -43,27 +46,11 @@ export class UserService {
       throw error;
     }
   }
-  getHello(): string {
-    return 'Hello World from journal api!';
-  }
 
   async createUser(data: CreateUserDto): Promise<IUser> {
     await this.validateUserRegisteredByEmail(data.email);
-    const newUser: IUser = {
-      userName: data.email,
-      loginInfo: {
-        password: this.hashPwd(data.password),
-      },
-      contactInfo: {
-        email: data.email,
-        name: data.name,
-        lastName: data.lastName,
-      },
-      gender: data.gender,
-      birthDay: new Date(data.birthDay),
-    };
 
-    return await this.createUserUseCase.apply(newUser);
+    return await this.createUserUseCase.apply(data, this.passwordHash);
   }
 
   async validateUserRegisteredByEmail(email: string) {
@@ -71,12 +58,5 @@ export class UserService {
     if (isUserRegister) {
       throw new BadRequestException('Bad request info');
     }
-  }
-
-  hashPwd(password: string): string {
-    const hash = createHash('sha224');
-    hash.update(password);
-    const pwdHash = hash.digest('hex');
-    return pwdHash;
   }
 }
