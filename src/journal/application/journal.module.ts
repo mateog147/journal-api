@@ -29,9 +29,13 @@ import { jwtConstants } from '../shared/jwt.constants';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EntryDbService } from '../infrastructure/driven-adapters/mysql/entry.db.service';
 import { Entry } from '../infrastructure/driven-adapters/mysql/entities/entry.entity';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
@@ -44,16 +48,17 @@ import { Entry } from '../infrastructure/driven-adapters/mysql/entities/entry.en
     }),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     TypeOrmModule.forRootAsync({
-      useFactory: () => ({
+      useFactory: (config: ConfigService) => ({
         type: 'mysql',
-        host: process.env.MYSQL_DB_HOST,
+        host: config.get<string>('MYSQL_DB_HOST'),
         port: 3306,
-        username: process.env.MYSQL_DB_USER,
-        password: process.env.MYSQL_DB_PASSWORD,
-        database: process.env.MYSQL_DB_NAME,
+        username: config.get<string>('MYSQL_DB_USER'),
+        password: config.get<string>('MYSQL_DB_PASSWORD'),
+        database: config.get<string>('MYSQL_DB_NAME'),
         entities: [Entry],
         synchronize: false,
       }),
+      inject: [ConfigService],
     }),
     TypeOrmModule.forFeature([Entry]),
   ],
