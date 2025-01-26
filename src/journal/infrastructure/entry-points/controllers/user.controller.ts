@@ -43,4 +43,16 @@ export class UserController {
       throw new InternalServerErrorException('Error');
     }
   }
+
+  @UseGuards(AuthGuard)
+  @Get()
+  getUserByid(@Request() req): Promise<IUser> {
+    try {
+      const id = req.user.sub;
+      return this.appService.getuserByid(id);
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException('Error');
+    }
+  }
 }

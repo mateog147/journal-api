@@ -10,7 +10,6 @@ import {
   GetUserByIdUseCase,
 } from 'src/journal/domain/use-cases';
 import { CreateUserDto, GetUserDto } from '../dto/user.dto';
-import { createHash } from 'crypto';
 import { PassportHasher } from '../auth';
 
 @Injectable()
@@ -58,5 +57,20 @@ export class UserService {
     if (isUserRegister) {
       throw new BadRequestException('Bad request info');
     }
+  }
+
+  async getuserByid(id: any): Promise<IUser> {
+    console.log('getUser by id start');
+
+    const user = await this.getUserByIdUseCase.apply(id);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+  catch(error) {
+    console.error(`getuser by ud error: ${error}`);
+    throw error;
   }
 }
