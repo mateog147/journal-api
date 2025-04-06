@@ -20,6 +20,7 @@ export class EntryDbService implements IEntryDb {
 
   async createEntry(user: IEntry): Promise<Entry> {
     return await this.entryRepository.save(user).catch((error: any) => {
+      console.log('create entry Db Error', error);
       throw new InternalServerErrorException('Error');
     });
   }
