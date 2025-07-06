@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
-import { IEntry } from 'src/journal/domain/model';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { IEntry } from '../../../domain/entities';
 import {
   CreateEntryUseCase,
   GetEntriesByDateUseCase,
   UpdateEntryUseCase,
-} from 'src/journal/domain/use-cases';
+  DeleteEntryUseCase,
+  GetEntryByIdUseCase,
+} from '../../../../journal/application/use-cases';
 import {
   CreateEntryDto,
   GetEntriesByDateDto,
@@ -12,13 +14,16 @@ import {
 } from '../dto/entry.dto';
 import { v4 as uuidv4 } from 'uuid';
 
+
 @Injectable()
 export class EntryService {
   constructor(
     private createEntryUseCase: CreateEntryUseCase,
     private updateEntryUseCase: UpdateEntryUseCase,
     private getEntriesByDateUseCase: GetEntriesByDateUseCase,
-  ) {}
+    private deleteEntryUseCase: DeleteEntryUseCase,
+    private getEntryByIdUseCase: GetEntryByIdUseCase,
+  ) { }
 
   async createEntry(userId: string, data: CreateEntryDto): Promise<IEntry> {
     const id = uuidv4();
@@ -52,5 +57,21 @@ export class EntryService {
       endDate,
     );
     return entries;
+  }
+
+
+
+  async deleteEntry(id: string, userId: string): Promise<void> {
+    const entry = await this.getEntryByIdUseCase.apply(id);
+
+    if (!entry) {
+      throw new NotFoundException('Entry not found');
+    }
+
+    if (entry.userId !== userId) {
+      throw new ForbiddenException('You do not own this entry');
+    }
+
+    await this.deleteEntryUseCase.apply(id);
   }
 }

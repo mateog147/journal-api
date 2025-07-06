@@ -3,12 +3,12 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { IPasswordHash, IUser } from '../../../../journal/domain/model';
+import { IPasswordHash, IUser } from '../../../domain';
 import {
   CreateUserUseCase,
   GetUserByEmailUseCase,
   GetUserByIdUseCase,
-} from 'src/journal/domain/use-cases';
+} from '../../../application/use-cases';
 import { CreateUserDto, GetUserDto } from '../dto/user.dto';
 import { PassportHasher } from '../auth';
 

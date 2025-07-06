@@ -2,7 +2,7 @@ import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schemas/user.schema';
-import { IUserDb, IUser } from '../../../../domain/model';
+import { IUserDb, IUser } from '../../../../domain';
 
 @Injectable()
 export class UserDbService implements IUserDb {

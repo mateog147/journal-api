@@ -5,3 +5,5 @@ export * from './user/validate-user-password.use-case';
 export * from './entry/create-entry.use-case';
 export * from './entry/update-entry.use-case';
 export * from './entry/get-entries-by-dates.use-case';
+export * from './entry/delete-entry.use-case';
+export * from './entry/get-entry-by-id.use-case';

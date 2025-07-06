@@ -10,10 +10,9 @@ import {
   UseGuards,
   Put,
   Param,
+  Delete
 } from '@nestjs/common';
-import { UserService } from '../services/user.service';
-import { IEntry, IUser } from 'src/journal/domain/model';
-import { CreateUserDto, GetUserDto } from '../dto/user.dto';
+import { IEntry } from '../../../domain/entities';
 import { AuthGuard } from '../auth/auth-guard';
 import { EntryService } from '../services';
 import {
@@ -22,9 +21,10 @@ import {
   UpdateEntryDto,
 } from '../dto/entry.dto';
 
+
 @Controller('api/entry')
 export class EntryController {
-  constructor(private readonly appService: EntryService) {}
+  constructor(private readonly appService: EntryService) { }
 
   @UseGuards(AuthGuard)
   @Post()
@@ -65,15 +65,31 @@ export class EntryController {
 
   @UseGuards(AuthGuard)
   @Get()
-  getEntriesByDay(
+  async getEntriesByDay(
     @Query()
     params: GetEntriesByDateDto,
     @Request() req,
   ): Promise<IEntry[]> {
     try {
       console.log('getEntriesByDay for user :>> ', req.user);
-      return this.appService.getEntriesByDate(req.user.sub, params);
+      return await this.appService.getEntriesByDate(req.user.sub, params);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException('Error');
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Delete(':id')
+  async deleteEntry(
+    @Param('id') id: string,
+    @Request() req,
+  ): Promise<void> {
+    try {
+      console.log(`Deleting entry ${id} for user ${req.user.sub}`);
+      await this.appService.deleteEntry(id, req.user.sub);
+    } catch (error) {
+      console.error('deleteEntry Fail', error);
       if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException('Error');
     }

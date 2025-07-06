@@ -1,5 +1,5 @@
 import { createHash } from 'crypto';
-import { IPasswordHash } from '../../../../journal/domain/model';
+import { IPasswordHash } from '../../../domain';
 
 export class PassportHasher implements IPasswordHash {
   transform(password: string): string {

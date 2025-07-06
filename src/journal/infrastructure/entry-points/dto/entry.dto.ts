@@ -1,5 +1,5 @@
 import { IsDateString, IsOptional, IsString } from 'class-validator';
-import { IEntry } from 'src/journal/domain/model';
+import { IEntry } from 'src/journal/domain';
 
 export class CreateEntryDto implements Partial<IEntry> {
   @IsString()

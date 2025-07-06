@@ -1,4 +1,4 @@
-import { IEntry } from '../entry.interface';
+import { IEntry } from '../entities/entry.interface';
 
 export const EntryDb = 'EntryDb';
 
@@ -11,4 +11,5 @@ export interface IEntryDb {
   createEntry: (entry: IEntry) => Promise<IEntry>;
   updateEntryById: (id: string, entry: Partial<IEntry>) => Promise<any>;
   getEntryById: (id: string) => Promise<IEntry>;
+  deleteEntryById(id: string): Promise<void>;
 }

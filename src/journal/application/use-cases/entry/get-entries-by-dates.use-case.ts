@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { EntryDb, IEntry, IEntryDb } from '../../model';
+import { EntryDb, IEntry, IEntryDb } from '../../../domain';
 
 @Injectable()
 export class GetEntriesByDateUseCase {
