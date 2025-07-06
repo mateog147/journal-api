@@ -2,21 +2,19 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
-  NotFoundException,
-  Optional,
 } from '@nestjs/common';
-import { Between, Repository, UpdateResult } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { Entry } from './entities/entry.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IEntry, IEntryDb } from 'src/journal/domain/model';
+import { IEntry, IEntryDb } from '../../../domain';
 
 @Injectable()
 export class EntryDbService implements IEntryDb {
   constructor(
     @InjectRepository(Entry)
     private entryRepository: Repository<Entry>,
-  ) {}
-  getEntryById: (id: string) => Promise<IEntry>;
+  ) { }
+
 
   async createEntry(user: IEntry): Promise<Entry> {
     return await this.entryRepository.save(user).catch((error: any) => {
@@ -33,6 +31,12 @@ export class EntryDbService implements IEntryDb {
       });
   }
 
+  async getEntryById(id: string): Promise<IEntry | null> {
+    return this.entryRepository.findOne({
+      where: { id }
+    });
+  }
+
   async getEntriesByUserAndDate(
     userId: string,
     startDateTime: Date,
@@ -46,5 +50,11 @@ export class EntryDbService implements IEntryDb {
     });
 
     return entries;
+  }
+
+  async deleteEntryById(id: string): Promise<void> {
+    await this.entryRepository.delete({ id }).catch((error) => {
+      throw new BadRequestException('Failed to delete entry', error);
+    });
   }
 }

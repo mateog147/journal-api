@@ -1,9 +1,9 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { ValidateUserPasswordUseCase } from '../../../../journal/domain/use-cases';
+import { ValidateUserPasswordUseCase } from '../../../application/use-cases';
 import { createHash } from 'crypto';
 import { LoginDto } from '../dto/auth.dto';
 import { JwtService } from '@nestjs/jwt';
-import { IPasswordHash } from '../../../../journal/domain/model';
+import { IPasswordHash } from '../../../domain';
 import { PassportHasher } from '../auth/password-hasher';
 
 @Injectable()

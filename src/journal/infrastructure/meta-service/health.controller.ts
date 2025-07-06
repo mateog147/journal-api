@@ -1,12 +1,6 @@
 import {
-  Body,
   Controller,
   Get,
-  HttpException,
-  InternalServerErrorException,
-  Param,
-  Post,
-  Query,
 } from '@nestjs/common';
 
 @Controller('health')

@@ -10,24 +10,24 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from '../services/user.service';
-import { IUser } from 'src/journal/domain/model';
+import { IUser } from 'src/journal/domain';
 import { CreateUserDto, GetUserDto } from '../dto/user.dto';
 import { AuthGuard } from '../auth/auth-guard';
 
 @Controller('api/user')
 export class UserController {
-  constructor(private readonly appService: UserService) {}
+  constructor(private readonly appService: UserService) { }
 
   @UseGuards(AuthGuard)
   @Get('user')
-  getUserByEmail(
+  async getUserByEmail(
     @Query()
     filter: GetUserDto,
     @Request() req,
   ): Promise<IUser> {
     try {
       console.log('req.user :>> ', req.user);
-      return this.appService.getuserDetail(filter);
+      return await this.appService.getuserDetail(filter);
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException('Error');
@@ -35,9 +35,9 @@ export class UserController {
   }
 
   @Post()
-  createNewUser(@Body() data: CreateUserDto): Promise<IUser> {
+  async createNewUser(@Body() data: CreateUserDto): Promise<IUser> {
     try {
-      return this.appService.createUser(data);
+      return await this.appService.createUser(data);
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException('Error');
@@ -46,10 +46,10 @@ export class UserController {
 
   @UseGuards(AuthGuard)
   @Get()
-  getUserByid(@Request() req): Promise<IUser> {
+  async getUserByid(@Request() req): Promise<IUser> {
     try {
       const id = req.user.sub;
-      return this.appService.getuserByid(id);
+      return await this.appService.getuserByid(id);
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException('Error');

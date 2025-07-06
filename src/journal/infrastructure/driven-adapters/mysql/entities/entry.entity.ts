@@ -1,4 +1,4 @@
-import { IEntry } from 'src/journal/domain/model';
+import { IEntry } from 'src/journal/domain';
 import {
   Column,
   Entity,

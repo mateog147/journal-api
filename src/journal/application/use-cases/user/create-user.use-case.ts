@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { IPasswordHash, IUser } from '../../model/user.interface';
-import { UserDb, IUserDb } from '../../model/ports/user-db.interface';
+import { IPasswordHash, IUser } from '../../../domain/entities/user.interface';
+import { UserDb, IUserDb } from '../../../domain/ports/user-db.interface';
 
 @Injectable()
 export class CreateUserUseCase {

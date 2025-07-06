@@ -17,8 +17,10 @@ import {
   GetUserByIdUseCase,
   UpdateEntryUseCase,
   ValidateUserPasswordUseCase,
-} from '../domain/use-cases';
-import { EntryDb, UserDb } from '../domain/model';
+  DeleteEntryUseCase,
+  GetEntryByIdUseCase,
+} from './use-cases';
+import { EntryDb, UserDb } from '../domain';
 import { UserDbService } from '../infrastructure/driven-adapters/mongo-database/user/user-db.service';
 import {
   User,
@@ -50,7 +52,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     TypeOrmModule.forRootAsync({
       useFactory: (config: ConfigService) => ({
         type: 'mysql',
-        host: config.get<string>('MYSQL_DB_HOST'),
+        host: process.env.MYSQL_DB_HOST,
         port: 3306,
         username: config.get<string>('MYSQL_DB_USER'),
         password: config.get<string>('MYSQL_DB_PASSWORD'),
@@ -74,6 +76,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     CreateEntryUseCase,
     UpdateEntryUseCase,
     GetEntriesByDateUseCase,
+    DeleteEntryUseCase,
+    GetEntryByIdUseCase,
     { provide: UserDb, useClass: UserDbService },
     { provide: EntryDb, useClass: EntryDbService },
   ],

@@ -1,4 +1,4 @@
-import { IUser } from '../user.interface';
+import { IUser } from '../entities/user.interface';
 
 export const UserDb = 'UserDb';
 
