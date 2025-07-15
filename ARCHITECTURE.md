@@ -36,3 +36,25 @@ This project is structured following the principles of Hexagonal Architecture, a
 *   **Separation of Concerns**: Each layer has a distinct responsibility, leading to a cleaner and more maintainable codebase.
 *   **Testability**: The core business logic (domain and application layers) can be tested independently of external systems by mocking the ports.
 *   **Flexibility**: It's easy to swap out external technologies (e.g., change from MongoDB to PostgreSQL) by simply providing a different adapter implementation for the same port, without affecting the core logic.
+
+## Folder structure: 
+├── config
+└── journal
+   ├── application
+   |  └── use-cases
+   |     ├── entry
+   |     └── user
+   ├── domain
+   |  ├── entities
+   |  └── ports
+   ├── infrastructure
+   |  ├── driven-adapters
+   |  |  ├── mongo-database
+   |  |  └── mysql
+   |  ├── entry-points
+   |  |  ├── auth
+   |  |  ├── controllers
+   |  |  ├── dto
+   |  |  └── services
+   |  └── meta-service
+   └── shared
