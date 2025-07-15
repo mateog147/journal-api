@@ -20,12 +20,25 @@ import {
   GetEntriesByDateDto,
   UpdateEntryDto,
 } from '../dto/entry.dto';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { EntryModel } from '../models';
 
-
+@ApiTags('entry')
 @Controller('api/entry')
 export class EntryController {
   constructor(private readonly appService: EntryService) { }
 
+  @ApiOperation({ summary: 'Create new journal entry' })
+  @ApiBody({ type: CreateEntryDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Entry created successfully',
+    type: EntryModel
+  })
+  @ApiResponse({ status: 400, description: 'Bad request - Invalid data' })
+  @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Post()
   async createNewEntry(
@@ -44,6 +57,20 @@ export class EntryController {
     }
   }
 
+  @ApiOperation({ summary: 'Update existing journal entry' })
+  @ApiParam({ name: 'id', description: 'Entry ID', example: '5f8d0d55b54764421b7156c5' })
+  @ApiBody({ type: UpdateEntryDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Entry updated successfully',
+    type: EntryModel
+  })
+  @ApiResponse({ status: 400, description: 'Bad request - Invalid data' })
+  @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Cannot update entry of another user' })
+  @ApiResponse({ status: 404, description: 'Not found - Entry does not exist' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Put(':id')
   async updateEntry(
@@ -63,6 +90,17 @@ export class EntryController {
     }
   }
 
+  @ApiOperation({ summary: 'Get entries by date range' })
+  @ApiQuery({ type: GetEntriesByDateDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Entries retrieved successfully',
+    type: [EntryModel]
+  })
+  @ApiResponse({ status: 400, description: 'Bad request - Invalid date range' })
+  @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Get()
   async getEntriesByDay(
@@ -79,6 +117,14 @@ export class EntryController {
     }
   }
 
+  @ApiOperation({ summary: 'Delete journal entry' })
+  @ApiParam({ name: 'id', description: 'Entry ID', example: '5f8d0d55b54764421b7156c5' })
+  @ApiResponse({ status: 204, description: 'Entry deleted successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Cannot delete entry of another user' })
+  @ApiResponse({ status: 404, description: 'Not found - Entry does not exist' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Delete(':id')
   async deleteEntry(
