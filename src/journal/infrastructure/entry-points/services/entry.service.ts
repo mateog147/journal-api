@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { IEntry } from '../../../domain/entities';
 import {
   CreateEntryUseCase,
@@ -13,7 +17,7 @@ import {
   UpdateEntryDto,
 } from '../dto/entry.dto';
 import { v4 as uuidv4 } from 'uuid';
-
+import { AppLogger } from '../../../../journal/shared/logger/app-logger';
 
 @Injectable()
 export class EntryService {
@@ -23,7 +27,8 @@ export class EntryService {
     private getEntriesByDateUseCase: GetEntriesByDateUseCase,
     private deleteEntryUseCase: DeleteEntryUseCase,
     private getEntryByIdUseCase: GetEntryByIdUseCase,
-  ) { }
+    private logger: AppLogger,
+  ) {}
 
   async createEntry(userId: string, data: CreateEntryDto): Promise<IEntry> {
     const id = uuidv4();
@@ -36,11 +41,12 @@ export class EntryService {
       updateAt: new Date(),
     };
 
+    this.logger.log('Creating entry', 'EntryService');
     return await this.createEntryUseCase.apply(newEntry);
   }
 
   async updateEntry(id: string, userId: string, data: UpdateEntryDto) {
-    console.log('Start update entry for user id', userId);
+    this.logger.log('Start update entry for user id ' + userId, 'EntryService');
     const res = await this.updateEntryUseCase.apply(id, data);
     return res;
   }
@@ -58,8 +64,6 @@ export class EntryService {
     );
     return entries;
   }
-
-
 
   async deleteEntry(id: string, userId: string): Promise<void> {
     const entry = await this.getEntryByIdUseCase.apply(id);

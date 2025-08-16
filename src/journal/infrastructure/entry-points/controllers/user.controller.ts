@@ -13,22 +13,36 @@ import { UserService } from '../services/user.service';
 import { IUser } from 'src/journal/domain';
 import { CreateUserDto, GetUserDto } from '../dto/user.dto';
 import { AuthGuard } from '../auth/auth-guard';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiBearerAuth,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { UserModel } from '../models';
+import { AppLogger } from '../../../../journal/shared/logger/app-logger';
 
 @ApiTags('user')
 @Controller('api/user')
 export class UserController {
-  constructor(private readonly appService: UserService) { }
+  constructor(
+    private readonly appService: UserService,
+    private logger: AppLogger,
+  ) {}
 
   @ApiOperation({ summary: 'Get user by email' })
   @ApiQuery({ type: GetUserDto })
   @ApiResponse({
     status: 200,
     description: 'User found successfully',
-    type: UserModel
+    type: UserModel,
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing token',
+  })
   @ApiResponse({ status: 404, description: 'User not found' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   @ApiBearerAuth()
@@ -40,7 +54,7 @@ export class UserController {
     @Request() req,
   ): Promise<IUser> {
     try {
-      console.log('req.user :>> ', req.user);
+      this.logger.log('Getting user by email', 'UserController');
       return await this.appService.getuserDetail(filter);
     } catch (error) {
       if (error instanceof HttpException) throw error;
@@ -53,7 +67,7 @@ export class UserController {
   @ApiResponse({
     status: 201,
     description: 'User created successfully',
-    type: UserModel
+    type: UserModel,
   })
   @ApiResponse({ status: 400, description: 'Bad request - Invalid data' })
   @ApiResponse({ status: 409, description: 'Conflict - User already exists' })
@@ -72,9 +86,12 @@ export class UserController {
   @ApiResponse({
     status: 200,
     description: 'User profile retrieved successfully',
-    type: UserModel
+    type: UserModel,
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing token',
+  })
   @ApiResponse({ status: 404, description: 'User not found' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   @ApiBearerAuth()
