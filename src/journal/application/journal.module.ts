@@ -32,6 +32,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { EntryDbService } from '../infrastructure/driven-adapters/mysql/entry.db.service';
 import { Entry } from '../infrastructure/driven-adapters/mysql/entities/entry.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AppLogger } from '../shared/logger/app-logger';
 
 @Module({
   imports: [
@@ -80,6 +81,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     GetEntryByIdUseCase,
     { provide: UserDb, useClass: UserDbService },
     { provide: EntryDb, useClass: EntryDbService },
+    AppLogger,
   ],
 })
 export class JournalModule {}

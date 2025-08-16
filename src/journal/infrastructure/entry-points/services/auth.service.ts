@@ -5,6 +5,7 @@ import { LoginDto } from '../dto/auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import { IPasswordHash } from '../../../domain';
 import { PassportHasher } from '../auth/password-hasher';
+import { AppLogger } from '../../../../journal/shared/logger/app-logger';
 
 @Injectable()
 export class AuthService {
@@ -12,6 +13,7 @@ export class AuthService {
   constructor(
     private validateUserPasswordUseCase: ValidateUserPasswordUseCase,
     private jwtService: JwtService,
+    private logger: AppLogger,
   ) {
     this.passwordHash = new PassportHasher();
   }
@@ -33,7 +35,7 @@ export class AuthService {
         access_token: await this.jwtService.signAsync(payload),
       };
     } catch (error) {
-      console.log('error :>> ', error);
+      this.logger.error('Error during login', error);
       throw error;
     }
   }

@@ -10,7 +10,7 @@ import {
   UseGuards,
   Put,
   Param,
-  Delete
+  Delete,
 } from '@nestjs/common';
 import { IEntry } from '../../../domain/entities';
 import { AuthGuard } from '../auth/auth-guard';
@@ -20,23 +20,41 @@ import {
   GetEntriesByDateDto,
   UpdateEntryDto,
 } from '../dto/entry.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiBearerAuth,
+  ApiParam,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { EntryModel } from '../models';
+import { AppLogger } from '../../../../journal/shared/logger/app-logger';
 
 @ApiTags('entry')
 @Controller('api/entry')
 export class EntryController {
-  constructor(private readonly appService: EntryService) { }
+  private readonly logger: AppLogger;
+
+  constructor(
+    private readonly appService: EntryService,
+  ) {
+    this.logger = AppLogger.getInstance();
+  }
 
   @ApiOperation({ summary: 'Create new journal entry' })
   @ApiBody({ type: CreateEntryDto })
   @ApiResponse({
     status: 201,
     description: 'Entry created successfully',
-    type: EntryModel
+    type: EntryModel,
   })
   @ApiResponse({ status: 400, description: 'Bad request - Invalid data' })
-  @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing token',
+  })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
@@ -46,28 +64,38 @@ export class EntryController {
     @Request() req,
   ): Promise<IEntry> {
     try {
-      console.log('createNewEntry start');
+      this.logger.log('createNewEntry start', 'EntryController');
       const res = await this.appService.createEntry(req.user.sub, data);
-      console.log('createNewEntry success');
+      this.logger.log('createNewEntry success', 'EntryController');
       return res;
     } catch (error) {
-      console.error('createNewEntry Fail', error);
+      this.logger.error('createNewEntry Fail', error?.stack, 'EntryController');
       if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException('Error');
     }
   }
 
   @ApiOperation({ summary: 'Update existing journal entry' })
-  @ApiParam({ name: 'id', description: 'Entry ID', example: '5f8d0d55b54764421b7156c5' })
+  @ApiParam({
+    name: 'id',
+    description: 'Entry ID',
+    example: '5f8d0d55b54764421b7156c5',
+  })
   @ApiBody({ type: UpdateEntryDto })
   @ApiResponse({
     status: 200,
     description: 'Entry updated successfully',
-    type: EntryModel
+    type: EntryModel,
   })
   @ApiResponse({ status: 400, description: 'Bad request - Invalid data' })
-  @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Cannot update entry of another user' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing token',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Cannot update entry of another user',
+  })
   @ApiResponse({ status: 404, description: 'Not found - Entry does not exist' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   @ApiBearerAuth()
@@ -79,12 +107,12 @@ export class EntryController {
     @Request() req,
   ): Promise<IEntry> {
     try {
-      console.log('updateEntry start');
+      this.logger.log('updateEntry start', 'EntryController');
       const res = await this.appService.updateEntry(id, req.user.sub, data);
-      console.log('updateEntry success');
+      this.logger.log('updateEntry success', 'EntryController');
       return res;
     } catch (error) {
-      console.error('updateEntry Fail', error);
+      this.logger.error('updateEntry Fail', error?.stack, 'EntryController');
       if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException('Error');
     }
@@ -95,10 +123,13 @@ export class EntryController {
   @ApiResponse({
     status: 200,
     description: 'Entries retrieved successfully',
-    type: [EntryModel]
+    type: [EntryModel],
   })
   @ApiResponse({ status: 400, description: 'Bad request - Invalid date range' })
-  @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing token',
+  })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
@@ -109,7 +140,7 @@ export class EntryController {
     @Request() req,
   ): Promise<IEntry[]> {
     try {
-      console.log('getEntriesByDay for user :>> ', req.user);
+      this.logger.log(`getEntriesByDay for user :>> ${JSON.stringify(req.user)}`, 'EntryController');
       return await this.appService.getEntriesByDate(req.user.sub, params);
     } catch (error) {
       if (error instanceof HttpException) throw error;
@@ -118,24 +149,31 @@ export class EntryController {
   }
 
   @ApiOperation({ summary: 'Delete journal entry' })
-  @ApiParam({ name: 'id', description: 'Entry ID', example: '5f8d0d55b54764421b7156c5' })
+  @ApiParam({
+    name: 'id',
+    description: 'Entry ID',
+    example: '5f8d0d55b54764421b7156c5',
+  })
   @ApiResponse({ status: 204, description: 'Entry deleted successfully' })
-  @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Cannot delete entry of another user' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing token',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Cannot delete entry of another user',
+  })
   @ApiResponse({ status: 404, description: 'Not found - Entry does not exist' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Delete(':id')
-  async deleteEntry(
-    @Param('id') id: string,
-    @Request() req,
-  ): Promise<void> {
+  async deleteEntry(@Param('id') id: string, @Request() req): Promise<void> {
     try {
-      console.log(`Deleting entry ${id} for user ${req.user.sub}`);
+      this.logger.log(`Deleting entry ${id} for user ${req.user.sub}`, 'EntryController');
       await this.appService.deleteEntry(id, req.user.sub);
     } catch (error) {
-      console.error('deleteEntry Fail', error);
+      this.logger.error('deleteEntry Fail', error?.stack, 'EntryController');
       if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException('Error');
     }
